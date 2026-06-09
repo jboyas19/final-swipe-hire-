@@ -1,3 +1,4 @@
+
 import { Router } from "express";
 import { z } from "zod";
 import { prisma } from "../db.js";
@@ -20,7 +21,8 @@ const feedQuerySchema = z.object({
 });
 
 // How many fresh candidates we score per request.
-const FEED_POOL_SIZE = 300;
+const GLASSDOOR_SOFTWARE_ENGINEER_URL =
+  "https://www.glassdoor.com/Job/Software-Engineer-jobs-SRCH_KO0,17.htm";
 
 jobsRouter.get("/feed", requireAuth, async (req: AuthedRequest, res) => {
   const parse = feedQuerySchema.safeParse(req.query);
@@ -115,7 +117,7 @@ jobsRouter.get("/feed", requireAuth, async (req: AuthedRequest, res) => {
       remote: j.remote,
       employmentType: j.employmentType,
       descriptionText: j.descriptionText?.slice(0, 500),
-      applyUrl: j.applyUrl,
+      applyUrl: GLASSDOOR_SOFTWARE_ENGINEER_URL,
       postedAt: j.postedAt,
     })),
     nextCursor,
@@ -167,7 +169,7 @@ jobsRouter.get("/saved", requireAuth, async (req: AuthedRequest, res) => {
     companyRating: ratings.get(s.job.companyId)?.avg ?? null,
     companyReviewCount: ratings.get(s.job.companyId)?.count ?? 0,
     location: s.job.location,
-    applyUrl: s.job.applyUrl,
+    applyUrl: GLASSDOOR_SOFTWARE_ENGINEER_URL,
     descriptionHtml: cleanDescriptionHtml(s.job.descriptionHtml),
     salary: extractSalary(s.job.descriptionText ?? s.job.descriptionHtml),
     trackStatus: s.trackStatus,
@@ -314,7 +316,7 @@ jobsRouter.get("/:id/outreach/draft", requireAuth, async (req: AuthedRequest, re
       email: ctx.inbox.email,
     },
     inboxKind: ctx.inbox.kind, // "manual" | "careers" | null
-    applyUrl: ctx.job.applyUrl,
+    applyUrl: GLASSDOOR_SOFTWARE_ENGINEER_URL,
     canSend: Boolean(ctx.inbox.email) && mailer.isConfigured(),
     sendingConfigured: mailer.isConfigured(),
     draft: ctx.draft,
